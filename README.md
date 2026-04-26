@@ -1,73 +1,96 @@
-# Fenmo Assessment
+# ExpenseTracker
 
-This codebase is now split into:
+A full-stack expense tracking app built with **Next.js 16**, **Supabase**, and **Tailwind CSS v4**.
 
-- Frontend: Next.js app in the repository root.
-- Backend: Express API in `backend/`.
+## Tech Stack
+
+- **Frontend**: Next.js (App Router), React 19, TypeScript
+- **Backend**: Next.js API Routes (`app/api/`)
+- **Database & Auth**: Supabase (PostgreSQL + Auth)
+- **Styling**: Tailwind CSS v4 + inline styles
 
 ## Project Structure
 
 ```
-fenmo-assessment/
-	app/                 # Next.js frontend routes/pages
-	components/          # Frontend UI components
-	lib/                 # Frontend utilities and API client
-	backend/
-		src/
-			routes/          # Backend API route handlers
-			server.ts        # Express entrypoint
+app/
+  layout.tsx           # Root layout
+  page.tsx             # Redirect → /login or /dashboard
+  login/page.tsx       # Login / signup page
+  dashboard/page.tsx   # Main dashboard
+  api/
+    auth/route.ts      # Auth endpoints (login, signup, logout)
+    expenses/route.ts  # CRUD endpoints for expenses
+components/
+  ExpenseForm.tsx      # Add expense form
+  ExpenseList.tsx      # Expenses table
+  ExpenseFilters.tsx   # Category filter + sort controls
+  Spinner.tsx          # Loading spinner
+lib/
+  api.ts               # Client-side API helpers + session management
+  supabase.ts          # Supabase client initialization
 ```
 
-## Environment Variables
+## Features
 
-Frontend (`.env.local` in root):
+- Email/password authentication (signup & login)
+- Add expenses with amount, category, description, and date
+- Filter by category and sort by date (newest/oldest)
+- Live total calculation
+- Responsive design (mobile-first)
 
-```
-NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-```
+## Setup
 
-Backend (`backend/.env`):
-
-```
-PORT=4000
-CORS_ORIGIN=http://localhost:3000
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_anon_key
-```
-
-You can copy `backend/.env.example` to `backend/.env` and fill the values.
-
-## Install Dependencies
-
-Install root (frontend + workspace scripts):
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-Install backend dependencies:
+### 2. Configure environment
 
-```bash
-npm --prefix backend install
+Create `.env.local` in the project root:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-## Run Locally
+### 3. Supabase setup
 
-Run both frontend and backend together:
+Create an `expenses` table in your Supabase project:
+
+```sql
+create table expenses (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id),
+  amount numeric not null,
+  category text not null,
+  description text not null,
+  date date not null,
+  created_at timestamptz default now()
+);
+
+alter table expenses enable row level security;
+
+create policy "Users manage own expenses"
+  on expenses for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+```
+
+### 4. Run locally
 
 ```bash
 npm run dev
 ```
 
-Or run separately:
+Open [http://localhost:3000](http://localhost:3000)
 
-```bash
-npm run dev:frontend
-npm run dev:backend
-```
+## API Endpoints
 
-Frontend: http://localhost:3000
-
-Backend health: http://localhost:4000/health
+| Method | Route            | Description           |
+|--------|------------------|-----------------------|
+| POST   | `/api/auth`      | Login or signup        |
+| DELETE | `/api/auth`      | Logout                |
+| GET    | `/api/expenses`  | List expenses (filtered/sorted) |
+| POST   | `/api/expenses`  | Create new expense    |

@@ -3,88 +3,118 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-background: #F8FAFC;
+  --color-foreground: #0F172A;
+  --color-border: #E2E8F0;
+  --color-input: #E2E8F0;
+  --color-ring: #4F46E5;
 }
 
-:root {
-  --radius: 0.5rem;
-  --background: #F8FAFC;
-  --foreground: #0F172A;
-  --accent-brand: #4F46E5;
-  --accent-brand-hover: #4338CA;
-  --accent-brand-foreground: #FFFFFF;
-  --border-subtle: #E2E8F0;
-  --muted-surface: #F8FAFC;
-  --error: #DC2626;
-  --success: #16A34A;
-  --card: #FFFFFF;
-  --card-foreground: #0F172A;
-  --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
-  --primary: #0F172A;
-  --primary-foreground: #F8FAFC;
-  --secondary: #F1F5F9;
-  --secondary-foreground: #0F172A;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent: #F1F5F9;
-  --accent-foreground: #0F172A;
-  --destructive: #DC2626;
-  --destructive-foreground: #FFFFFF;
-  --border: #E2E8F0;
-  --input: #E2E8F0;
-  --ring: #4F46E5;
+/* ── Reset ── */
+*,
+*::before,
+*::after {
+  border-color: #E2E8F0;
 }
 
-@layer base {
-  * {
-    border-color: var(--color-border);
-  }
-
-  body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-  }
+html {
+  background-color: #F8FAFC;
 }
 
-/* Card utility */
-.card {
-  background-color: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+body {
+  background-color: #F8FAFC;
+  color: #0F172A;
+  margin: 0;
 }
 
-/* Focus ring for inputs */
+/* ── Force white inputs (override browser autofill) ── */
+input,
+select,
+textarea {
+  background-color: #FFFFFF !important;
+  color: #0F172A;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  -webkit-text-fill-color: #0F172A !important;
+  background-color: #FFFFFF !important;
+}
+
+/* ── Input focus ── */
 input:focus,
 select:focus {
   outline: none;
   border-color: #4F46E5 !important;
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.12);
+}
+
+/* ── Button hover transition ── */
+button {
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* ═══════════════════════════════════════
+   Responsive layout classes
+   ═══════════════════════════════════════ */
+
+/* Main container padding */
+.main-container {
+  padding: 24px 16px;
+}
+@media (min-width: 768px) {
+  .main-container {
+    padding: 24px;
+  }
+}
+
+/* Header email: hidden on mobile */
+.header-email {
+  display: none;
+}
+@media (min-width: 768px) {
+  .header-email {
+    display: block;
+  }
+}
+
+/* Mobile email: shown only on mobile */
+.mobile-email {
+  display: block;
+}
+@media (min-width: 640px) {
+  .mobile-email {
+    display: none;
+  }
+}
+
+/* Filter row: stacked on mobile, row on desktop */
+.filter-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+@media (min-width: 768px) {
+  .filter-row {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+/* Expense form grid: stacked on mobile, single row on desktop */
+.expense-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 1024px) {
+  .expense-form-grid {
+    grid-template-columns: 140px 160px minmax(200px, 1fr) 160px auto;
+  }
 }

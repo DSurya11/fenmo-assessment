@@ -13,6 +13,62 @@ import {
 import { ExpenseForm } from "@/components/ExpenseForm";
 import { ExpenseList } from "@/components/ExpenseList";
 
+const cardStyle: React.CSSProperties = {
+  backgroundColor: "#FFFFFF",
+  border: "1px solid #E2E8F0",
+  borderRadius: 12,
+  padding: 24,
+  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+};
+
+const inputStyle: React.CSSProperties = {
+  height: 40,
+  borderRadius: 8,
+  border: "1px solid #E2E8F0",
+  backgroundColor: "#FFFFFF",
+  padding: "0 12px",
+  fontSize: 14,
+  color: "#0F172A",
+  outline: "none",
+  width: "100%",
+  boxSizing: "border-box",
+};
+
+function SortButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        height: 40,
+        borderRadius: 9999,
+        border: "1px solid #4F46E5",
+        backgroundColor: active ? "#4F46E5" : hovered ? "#EEF2FF" : "#FFFFFF",
+        color: active ? "#FFFFFF" : "#4F46E5",
+        fontSize: 14,
+        fontWeight: 500,
+        padding: "0 16px",
+        cursor: "pointer",
+        transition: "background-color 0.15s, color 0.15s",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const email = getSessionEmail();
@@ -22,6 +78,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutHovered, setLogoutHovered] = useState(false);
 
   useEffect(() => {
     if (!email) {
@@ -67,22 +124,69 @@ export default function DashboardPage() {
   if (!email) return null;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div style={{ minHeight: "100vh", backgroundColor: "#F8FAFC" }}>
       {/* ─── HEADER ─── */}
-      <header className="h-16 border-b border-[#E2E8F0] bg-[#FFFFFF]">
-        <div className="mx-auto grid h-full w-full max-w-[1200px] grid-cols-[1fr_auto] items-center gap-3 px-6 md:grid-cols-3">
-          <div className="flex items-center gap-2 text-[#0F172A] md:justify-self-start">
-            <span className="inline-block h-2 w-2 rounded-full bg-[#4F46E5]" />
-            <span className="text-lg font-bold">ExpenseTracker</span>
+      <header
+        style={{
+          height: 64,
+          borderBottom: "1px solid #E2E8F0",
+          backgroundColor: "#FFFFFF",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 1200,
+            margin: "0 auto",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "0 24px",
+          }}
+        >
+          {/* Left: brand */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span
+              style={{
+                display: "inline-block",
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                backgroundColor: "#4F46E5",
+              }}
+            />
+            <span style={{ fontSize: 18, fontWeight: 700, color: "#0F172A" }}>
+              ExpenseTracker
+            </span>
           </div>
-          <span className="hidden text-sm text-[#64748B] md:block md:justify-self-center">
+
+          {/* Center: email (desktop) */}
+          <span
+            className="header-email"
+            style={{ fontSize: 14, color: "#64748B" }}
+          >
             {email}
           </span>
 
+          {/* Right: logout */}
           <button
             onClick={onLogout}
             disabled={loggingOut}
-            className="h-10 justify-self-end rounded-lg border border-[#4F46E5] bg-[#FFFFFF] px-4 text-sm font-medium text-[#4F46E5] transition-colors hover:bg-[#4F46E5] hover:text-[#FFFFFF] disabled:opacity-60"
+            onMouseEnter={() => setLogoutHovered(true)}
+            onMouseLeave={() => setLogoutHovered(false)}
+            style={{
+              height: 40,
+              borderRadius: 8,
+              border: "1px solid #4F46E5",
+              backgroundColor: logoutHovered && !loggingOut ? "#4F46E5" : "#FFFFFF",
+              color: logoutHovered && !loggingOut ? "#FFFFFF" : "#4F46E5",
+              fontSize: 14,
+              fontWeight: 500,
+              padding: "0 16px",
+              cursor: loggingOut ? "not-allowed" : "pointer",
+              opacity: loggingOut ? 0.6 : 1,
+              transition: "background-color 0.15s, color 0.15s",
+            }}
           >
             {loggingOut ? "Logging out…" : "Logout"}
           </button>
@@ -90,27 +194,35 @@ export default function DashboardPage() {
       </header>
 
       {/* ─── MAIN ─── */}
-      <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-5 px-4 py-5 md:px-6 md:py-6">
+      <main
+        className="main-container"
+        style={{
+          maxWidth: 1200,
+          margin: "0 auto",
+          display: "flex",
+          flexDirection: "column",
+          gap: 24,
+        }}
+      >
         {/* Mobile email */}
-        <p className="text-sm text-[#64748B] sm:hidden">{email}</p>
+        <p className="mobile-email" style={{ margin: 0, fontSize: 14, color: "#64748B" }}>
+          {email}
+        </p>
 
         {/* Add Expense */}
         <ExpenseForm onAdded={load} />
 
         {/* Filter & Sort */}
-        <section
-          className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] p-6"
-          style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
-        >
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div className="flex w-full flex-col gap-2 md:max-w-xs">
-              <label className="text-sm font-medium text-[#334155]">
+        <section style={cardStyle}>
+          <div className="filter-row">
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 200 }}>
+              <label style={{ fontSize: 14, fontWeight: 500, color: "#334155" }}>
                 Filter by Category
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="h-10 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] px-3 text-sm text-[#0F172A] outline-none"
+                style={inputStyle}
               >
                 <option value="All">All</option>
                 <option value="Food">Food</option>
@@ -123,31 +235,15 @@ export default function DashboardPage() {
               </select>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-[#334155]">Sort</span>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSortDesc(true)}
-                  className={`h-10 rounded-full border px-4 text-sm font-medium transition-colors ${
-                    sortDesc
-                      ? "border-[#4F46E5] bg-[#4F46E5] text-[#FFFFFF]"
-                      : "border-[#4F46E5] bg-[#FFFFFF] text-[#4F46E5]"
-                  }`}
-                >
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <span style={{ fontSize: 14, fontWeight: 500, color: "#334155" }}>Sort</span>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <SortButton active={sortDesc} onClick={() => setSortDesc(true)}>
                   Newest first
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSortDesc(false)}
-                  className={`h-10 rounded-full border px-4 text-sm font-medium transition-colors ${
-                    !sortDesc
-                      ? "border-[#4F46E5] bg-[#4F46E5] text-[#FFFFFF]"
-                      : "border-[#4F46E5] bg-[#FFFFFF] text-[#4F46E5]"
-                  }`}
-                >
+                </SortButton>
+                <SortButton active={!sortDesc} onClick={() => setSortDesc(false)}>
                   Oldest first
-                </button>
+                </SortButton>
               </div>
             </div>
           </div>
@@ -155,18 +251,23 @@ export default function DashboardPage() {
 
         {/* Total */}
         <section
-          className="flex items-center justify-between rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] px-6 py-5"
-          style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
+          style={{
+            ...cardStyle,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "20px 24px",
+          }}
         >
-          <span className="text-sm text-[#64748B]">Total</span>
-          <span className="text-3xl font-bold text-[#0F172A]">
+          <span style={{ fontSize: 14, color: "#64748B" }}>Total</span>
+          <span style={{ fontSize: 30, fontWeight: 700, color: "#0F172A" }}>
             {formatCurrency(total)}
           </span>
         </section>
 
         {/* Error */}
         {loadError && (
-          <p className="text-sm text-[#DC2626]">{loadError}</p>
+          <p style={{ margin: 0, fontSize: 14, color: "#DC2626" }}>{loadError}</p>
         )}
 
         {/* Expenses Table */}

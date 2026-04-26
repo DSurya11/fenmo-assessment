@@ -2,6 +2,44 @@
 
 import { type Expense, formatCurrency } from "@/lib/api";
 
+const cardStyle: React.CSSProperties = {
+  backgroundColor: "#FFFFFF",
+  border: "1px solid #E2E8F0",
+  borderRadius: 12,
+  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+  overflowX: "auto",
+};
+
+const thStyle: React.CSSProperties = {
+  height: 48,
+  padding: "0 16px",
+  fontSize: 11,
+  fontWeight: 600,
+  textTransform: "uppercase",
+  letterSpacing: "0.05em",
+  color: "#94A3B8",
+  textAlign: "left",
+  borderBottom: "1px solid #E2E8F0",
+  backgroundColor: "#FFFFFF",
+};
+
+const tdStyle: React.CSSProperties = {
+  padding: "0 16px",
+  fontSize: 14,
+  color: "#0F172A",
+};
+
+const badgeStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  borderRadius: 9999,
+  backgroundColor: "#EEF2FF",
+  color: "#4338CA",
+  fontSize: 12,
+  fontWeight: 500,
+  padding: "2px 10px",
+};
+
 export function ExpenseList({
   expenses,
   loading,
@@ -11,19 +49,24 @@ export function ExpenseList({
 }) {
   if (loading) {
     return (
-      <div
-        className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-[#FFFFFF]"
-        style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
-      >
+      <div style={cardStyle}>
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="grid h-12 grid-cols-4 items-center gap-4 border-b border-[#E2E8F0] px-4 last:border-b-0"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 2fr 1fr",
+              alignItems: "center",
+              height: 48,
+              padding: "0 16px",
+              gap: 16,
+              borderBottom: i < 3 ? "1px solid #E2E8F0" : "none",
+            }}
           >
-            <div className="h-3 w-20 animate-pulse rounded bg-[#E2E8F0]" />
-            <div className="h-3 w-16 animate-pulse rounded bg-[#E2E8F0]" />
-            <div className="h-3 w-32 animate-pulse rounded bg-[#E2E8F0]" />
-            <div className="ml-auto h-3 w-14 animate-pulse rounded bg-[#E2E8F0]" />
+            <div style={{ height: 12, width: 80, borderRadius: 4, backgroundColor: "#E2E8F0" }} />
+            <div style={{ height: 12, width: 64, borderRadius: 4, backgroundColor: "#E2E8F0" }} />
+            <div style={{ height: 12, width: 128, borderRadius: 4, backgroundColor: "#E2E8F0" }} />
+            <div style={{ height: 12, width: 56, borderRadius: 4, backgroundColor: "#E2E8F0", marginLeft: "auto" }} />
           </div>
         ))}
       </div>
@@ -33,8 +76,13 @@ export function ExpenseList({
   if (!expenses.length) {
     return (
       <div
-        className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] px-6 py-16 text-center text-sm text-[#64748B]"
-        style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
+        style={{
+          ...cardStyle,
+          padding: "64px 24px",
+          textAlign: "center",
+          fontSize: 14,
+          color: "#64748B",
+        }}
       >
         No expenses yet. Add your first one.
       </div>
@@ -42,41 +90,31 @@ export function ExpenseList({
   }
 
   return (
-    <div
-      className="overflow-x-auto rounded-xl border border-[#E2E8F0] bg-[#FFFFFF]"
-      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
-    >
-      <table className="w-full min-w-[640px] text-sm">
-        <thead className="border-b border-[#E2E8F0] text-left">
+    <div style={cardStyle}>
+      <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse", fontSize: 14 }}>
+        <thead>
           <tr>
-            <th className="h-12 px-4 text-xs font-semibold uppercase tracking-wide text-[#94A3B8]">
-              Date
-            </th>
-            <th className="h-12 px-4 text-xs font-semibold uppercase tracking-wide text-[#94A3B8]">
-              Category
-            </th>
-            <th className="h-12 px-4 text-xs font-semibold uppercase tracking-wide text-[#94A3B8]">
-              Description
-            </th>
-            <th className="h-12 px-4 text-right text-xs font-semibold uppercase tracking-wide text-[#94A3B8]">
-              Amount
-            </th>
+            <th style={thStyle}>Date</th>
+            <th style={thStyle}>Category</th>
+            <th style={thStyle}>Description</th>
+            <th style={{ ...thStyle, textAlign: "right" }}>Amount</th>
           </tr>
         </thead>
         <tbody>
-          {expenses.map((e) => (
+          {expenses.map((e, idx) => (
             <tr
               key={e.id}
-              className="h-12 border-b border-[#E2E8F0] text-[#0F172A] last:border-b-0"
+              style={{
+                height: 48,
+                borderBottom: idx < expenses.length - 1 ? "1px solid #E2E8F0" : "none",
+              }}
             >
-              <td className="px-4 text-sm">{e.date}</td>
-              <td className="px-4">
-                <span className="inline-flex rounded-full bg-[#EEF2FF] px-2.5 py-0.5 text-xs font-medium text-[#4338CA]">
-                  {e.category}
-                </span>
+              <td style={tdStyle}>{e.date}</td>
+              <td style={tdStyle}>
+                <span style={badgeStyle}>{e.category}</span>
               </td>
-              <td className="px-4 text-sm">{e.description}</td>
-              <td className="px-4 text-right font-bold text-[#0F172A]">
+              <td style={tdStyle}>{e.description}</td>
+              <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>
                 {formatCurrency(Number(e.amount))}
               </td>
             </tr>
