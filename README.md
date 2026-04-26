@@ -9,7 +9,7 @@ A production-ready full-stack expense tracking application.
 
 ## Tech Stack
 
-- **Framework:** Next.js 14 (App Router) + TypeScript
+- **Framework:** Next.js 16.2.4 (App Router) + TypeScript
 - **Database:** Supabase (PostgreSQL)
 - **Validation:** Zod
 - **Auth:** Supabase Auth

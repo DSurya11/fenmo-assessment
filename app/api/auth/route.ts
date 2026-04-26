@@ -3,7 +3,13 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-const AuthSchema = z.object({
+const LoginSchema = z.object({
+  email: z.string().email({ message: "Valid email required" }),
+  password: z.string().min(1, { message: "Password is required" }),
+  action: z.literal("login"),
+});
+
+const SignupSchema = z.object({
   email: z.string().email({ message: "Valid email required" }),
   password: z
     .string()
@@ -12,8 +18,10 @@ const AuthSchema = z.object({
     .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
     .regex(/[0-9]/, { message: "Password must contain at least one number" })
     .regex(/[^A-Za-z0-9]/, { message: "Password must contain at least one special character" }),
-  action: z.enum(["login", "signup"]),
+  action: z.literal("signup"),
 });
+
+const AuthSchema = z.discriminatedUnion("action", [LoginSchema, SignupSchema]);
 
 function isValidHttpUrl(value: string | undefined): value is string {
   if (!value || value === "your_supabase_url") return false;

@@ -2,11 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
   authRequest,
-  getSessionEmail,
-  setSessionEmail,
 } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 import { Spinner } from "@/components/Spinner";
 import { CheckCircle2, XCircle, WalletCards } from "lucide-react";
 
@@ -49,9 +47,11 @@ export default function LoginPage() {
   const showPasswordRequirements = mode === "signup";
 
   useEffect(() => {
-    if (getSessionEmail()) {
-      router.push("/dashboard");
-    }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        router.push("/dashboard");
+      }
+    });
   }, [router]);
 
   const submit = async (e: React.FormEvent) => {
@@ -68,7 +68,6 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await authRequest(email.trim(), password, mode);
-      setSessionEmail(email.trim());
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Authentication failed");
@@ -79,10 +78,10 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md glass-card rounded-2xl p-8 sm:p-10 transform transition-all duration-300 hover:shadow-2xl">
+      <div className="w-full max-w-md glass-card rounded-2xl p-8 sm:p-10 transform transition-all duration-300 hover:shadow-xl">
         {/* Brand */}
         <div className="flex flex-col items-center justify-center mb-8 space-y-2">
-          <div className="w-12 h-12 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 mb-2">
+          <div className="w-12 h-12 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-200 mb-2">
             <WalletCards className="text-white w-7 h-7" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -155,7 +154,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="group relative h-11 w-full flex items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 text-sm font-semibold text-white shadow-md shadow-indigo-200 hover:from-indigo-500 hover:to-violet-500 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5"
+            className="group relative h-11 w-full flex items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 text-sm font-semibold text-white shadow-sm shadow-indigo-200 hover:from-indigo-500 hover:to-violet-500 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5"
           >
             {loading && <Spinner />}
             <span>

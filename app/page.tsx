@@ -2,17 +2,19 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getSessionEmail } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 
 export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    if (getSessionEmail()) {
-      router.push("/dashboard");
-    } else {
-      router.push("/login");
-    }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        router.push("/dashboard");
+      } else {
+        router.push("/login");
+      }
+    });
   }, [router]);
 
   return null;

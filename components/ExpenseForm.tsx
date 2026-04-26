@@ -59,7 +59,7 @@ export function ExpenseForm({ onAdded }: { onAdded: () => void }) {
   };
 
   return (
-    <section className="glass-card rounded-2xl p-6 sm:p-8 transform transition-all duration-300 hover:shadow-xl">
+    <section className="glass-card rounded-2xl p-6 sm:p-8 transform transition-all duration-300 hover:shadow-lg">
       <div className="flex items-center space-x-3 mb-6">
         <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
           <Plus className="w-5 h-5 text-indigo-600" />
@@ -75,7 +75,7 @@ export function ExpenseForm({ onAdded }: { onAdded: () => void }) {
           <div className="flex flex-col space-y-1.5 md:col-span-2">
             <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Amount</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">₹</span>
               <input
                 type="number"
                 step="0.01"
@@ -136,7 +136,7 @@ export function ExpenseForm({ onAdded }: { onAdded: () => void }) {
             <button
               type="submit"
               disabled={loading}
-              className="group relative h-11 w-full flex items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 text-sm font-bold text-white shadow-md shadow-indigo-200 hover:from-indigo-500 hover:to-violet-500 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5"
+              className="group relative h-11 w-full flex items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 text-sm font-bold text-white shadow-sm shadow-indigo-200 hover:from-indigo-500 hover:to-violet-500 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5"
             >
               {loading && <Spinner />}
               <span>{loading ? "Adding..." : "Add"}</span>

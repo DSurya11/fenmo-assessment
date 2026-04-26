@@ -98,19 +98,6 @@ export async function POST(request: NextRequest) {
 
     const { amount, category, description, date, idempotency_key } = validation.data;
 
-    if (idempotency_key) {
-      const { data: existing } = await supabase
-        .from("expenses")
-        .select("*")
-        .eq("idempotency_key", idempotency_key)
-        .eq("user_id", session.user.id)
-        .single();
-
-      if (existing) {
-        return NextResponse.json({ success: true, data: existing }, { status: 200 });
-      }
-    }
-
     const { data, error } = await supabase
       .from("expenses")
       .insert([
@@ -127,6 +114,18 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
+      if (error.code === '23505' && idempotency_key) {
+        const { data: existing } = await supabase
+          .from("expenses")
+          .select("*")
+          .eq("idempotency_key", idempotency_key)
+          .eq("user_id", session.user.id)
+          .single();
+
+        if (existing) {
+          return NextResponse.json({ success: true, data: existing }, { status: 200 });
+        }
+      }
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 

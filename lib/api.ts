@@ -20,7 +20,6 @@ export const CATEGORIES = [
 
 export type Category = (typeof CATEGORIES)[number];
 
-const SESSION_KEY = "expense_tracker_session_email";
 
 async function parseError(res: Response, fallback: string): Promise<Error> {
   const json = await res.json().catch(() => null);
@@ -86,18 +85,6 @@ export async function createExpense(payload: {
   return res.json().catch(() => ({}));
 }
 
-export function getSessionEmail(): string | null {
-  if (typeof window === "undefined") return null;
-  return window.localStorage.getItem(SESSION_KEY);
-}
-
-export function setSessionEmail(email: string) {
-  window.localStorage.setItem(SESSION_KEY, email);
-}
-
-export function clearSession() {
-  window.localStorage.removeItem(SESSION_KEY);
-}
 
 export function formatCurrency(n: number) {
   return new Intl.NumberFormat("en-IN", {

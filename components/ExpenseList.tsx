@@ -11,7 +11,7 @@ export function ExpenseList({
 }) {
   if (loading) {
     return (
-      <div className="glass-card rounded-2xl overflow-hidden shadow-sm">
+      <div className="glass-card rounded-2xl overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-200/60 bg-slate-50/50">
           <p className="text-sm font-medium text-slate-500 animate-pulse">
             Loading expenses...
@@ -36,7 +36,7 @@ export function ExpenseList({
 
   if (!expenses.length) {
     return (
-      <div className="glass-card rounded-2xl p-16 flex flex-col items-center justify-center text-center shadow-sm">
+      <div className="glass-card rounded-2xl p-16 flex flex-col items-center justify-center text-center">
         <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
           <span className="text-2xl">📝</span>
         </div>
@@ -49,7 +49,7 @@ export function ExpenseList({
   }
 
   return (
-    <div className="glass-card rounded-2xl overflow-hidden shadow-sm">
+    <div className="glass-card rounded-2xl overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm whitespace-nowrap">
           <thead>

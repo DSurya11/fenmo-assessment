@@ -3,13 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  clearSession,
   fetchExpenses,
   formatCurrency,
-  getSessionEmail,
   logoutRequest,
   type Expense,
 } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 import { ExpenseForm } from "@/components/ExpenseForm";
 import { ExpenseList } from "@/components/ExpenseList";
 import ExpenseChart from "@/components/ExpenseChart";
@@ -30,7 +29,7 @@ function SortButton({
       onClick={onClick}
       className={`h-10 rounded-full px-4 text-sm font-semibold transition-all duration-300 ${
         active
-          ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
+          ? "bg-indigo-600 text-white shadow-sm shadow-indigo-200"
           : "bg-white text-indigo-600 border border-indigo-200 hover:bg-indigo-50 hover:border-indigo-300"
       }`}
     >
@@ -41,7 +40,7 @@ function SortButton({
 
 export default function DashboardPage() {
   const router = useRouter();
-  const email = getSessionEmail();
+  const [email, setEmail] = useState<string | null>(null);
   const [category, setCategory] = useState("All");
   const [sortDesc, setSortDesc] = useState(true);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -50,11 +49,24 @@ export default function DashboardPage() {
   const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
-    if (!email) {
-      clearSession();
-      router.push("/login");
-    }
-  }, [email, router]);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        router.push("/login");
+      } else {
+        setEmail(session.user.email ?? null);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        router.push("/login");
+      } else {
+        setEmail(session.user.email ?? null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [router]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -97,7 +109,6 @@ export default function DashboardPage() {
     try {
       await logoutRequest().catch(() => {});
     } finally {
-      clearSession();
       router.push("/login");
     }
   };
@@ -111,7 +122,7 @@ export default function DashboardPage() {
         <div className="max-w-6xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Left: brand */}
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md shadow-indigo-200">
+            <div className="w-8 h-8 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-sm shadow-indigo-200">
               <WalletCards className="text-white w-4 h-4" />
             </div>
             <span className="text-lg font-bold text-slate-900 tracking-tight hidden sm:block">
@@ -145,6 +156,28 @@ export default function DashboardPage() {
 
         {/* Add Expense */}
         <ExpenseForm onAdded={load} />
+
+        {/* Category Summary */}
+        {categorySummary.length > 0 && (
+          <div className="glass-card rounded-2xl p-6">
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 flex items-center space-x-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+              <span>Spending by Category</span>
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              {categorySummary.map(([expenseCategory, amount]) => (
+                <div key={expenseCategory} className="bg-white/60 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center space-x-2 text-sm">
+                  <span className="font-medium text-slate-600">{expenseCategory}</span>
+                  <span className="text-slate-300">|</span>
+                  <span className="font-bold text-slate-900">{formatCurrency(amount)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Chart */}
+        <ExpenseChart expenses={expenses} />
 
         {/* Filter & Sort & Total Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -195,27 +228,6 @@ export default function DashboardPage() {
             </span>
           </div>
         </div>
-
-        {/* Category Summary */}
-        {categorySummary.length > 0 && (
-          <div className="glass-card rounded-2xl p-6">
-            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 flex items-center space-x-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-              <span>Spending by Category</span>
-            </h3>
-            <div className="flex flex-wrap gap-3">
-              {categorySummary.map(([expenseCategory, amount]) => (
-                <div key={expenseCategory} className="bg-white/60 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center space-x-2 text-sm">
-                  <span className="font-medium text-slate-600">{expenseCategory}</span>
-                  <span className="text-slate-300">|</span>
-                  <span className="font-bold text-slate-900">{formatCurrency(amount)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <ExpenseChart expenses={expenses} />
 
         {/* Error */}
         {loadError && (

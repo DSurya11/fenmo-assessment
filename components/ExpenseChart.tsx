@@ -1,8 +1,4 @@
-'use client'
-import { Doughnut } from 'react-chartjs-2'
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
-
-ChartJS.register(ArcElement, Tooltip, Legend)
+"use client";
 
 interface Props {
   expenses: { category: string; amount: number | string }[]
@@ -16,54 +12,51 @@ export default function ExpenseChart({ expenses }: Props) {
 
   const labels = Object.keys(categoryTotals)
   const data = Object.values(categoryTotals)
+  const totalAmount = data.reduce((a, b) => a + b, 0)
 
   const colors = [
-    '#4F46E5', '#0EA5E9', '#10B981', '#F59E0B',
-    '#EF4444', '#8B5CF6', '#EC4899'
+    'bg-indigo-600', 'bg-sky-500', 'bg-emerald-500', 'bg-amber-500',
+    'bg-red-500', 'bg-violet-500', 'bg-pink-500'
   ]
 
-  if (labels.length === 0) return null
-
-  const chartData = {
-    labels,
-    datasets: [{
-      data,
-      backgroundColor: colors.slice(0, labels.length),
-      borderWidth: 0,
-    }]
-  }
-
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'right' as const,
-        labels: {
-          boxWidth: 12,
-          padding: 16,
-          font: { size: 13 }
-        }
-      },
-      tooltip: {
-        callbacks: {
-          label: (ctx: any) => {
-            const val = ctx.parsed
-            const total = data.reduce((a, b) => a + b, 0)
-            const pct = ((val / total) * 100).toFixed(1)
-            return ` ₹${val.toLocaleString('en-IN')} (${pct}%)`
-          }
-        }
-      }
-    }
-  }
+  if (labels.length === 0 || totalAmount === 0) return null
 
   return (
-    <div className="glass-card rounded-2xl p-6 shadow-sm mb-6">
+    <div className="glass-card rounded-2xl p-6">
       <h2 className="text-sm font-semibold text-slate-700 mb-4">
         Spending Breakdown
       </h2>
-      <div className="max-w-sm mx-auto">
-        <Doughnut data={chartData} options={options} />
+      
+      {/* Stacked Bar */}
+      <div className="w-full h-3 flex rounded-full overflow-hidden bg-slate-100">
+        {labels.map((label, idx) => {
+          const val = categoryTotals[label];
+          const pct = (val / totalAmount) * 100;
+          return (
+            <div 
+              key={label}
+              className={`h-full ${colors[idx % colors.length]} hover:opacity-80 transition-opacity cursor-help`}
+              style={{ width: `${pct}%` }}
+              title={`${label}: ₹${val.toLocaleString('en-IN')} (${pct.toFixed(1)}%)`}
+            />
+          );
+        })}
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-4 mt-5">
+        {labels.map((label, idx) => {
+          const val = categoryTotals[label];
+          const pct = (val / totalAmount) * 100;
+          return (
+            <div key={label} className="flex items-center space-x-2 text-xs">
+              <span className={`w-2.5 h-2.5 rounded-full ${colors[idx % colors.length]}`}></span>
+              <span className="text-slate-600 font-medium">
+                {label} <span className="text-slate-400">({pct.toFixed(1)}%)</span>
+              </span>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
