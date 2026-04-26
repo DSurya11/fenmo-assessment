@@ -29,6 +29,8 @@ Browser -> Next.js Frontend (/app)
 
 Frontend and backend are co-located in one Next.js app, deployed as serverless functions on Vercel. No separate backend server is needed.
 
+The user interface is responsive and optimized for both mobile and desktop screens.
+
 ---
 
 ## API Endpoints

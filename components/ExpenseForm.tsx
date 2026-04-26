@@ -3,29 +3,9 @@
 import { useEffect, useState } from "react";
 import { CATEGORIES, createExpense } from "@/lib/api";
 import { Spinner } from "./Spinner";
+import { Plus } from "lucide-react";
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
-
-const inputStyle: React.CSSProperties = {
-  height: 40,
-  borderRadius: 8,
-  border: "1px solid #E2E8F0",
-  backgroundColor: "#FFFFFF",
-  padding: "0 12px",
-  fontSize: 14,
-  color: "#0F172A",
-  outline: "none",
-  width: "100%",
-  boxSizing: "border-box",
-};
-
-const labelStyle: React.CSSProperties = {
-  fontSize: 11,
-  fontWeight: 600,
-  textTransform: "uppercase",
-  letterSpacing: "0.05em",
-  color: "#64748B",
-};
 
 export function ExpenseForm({ onAdded }: { onAdded: () => void }) {
   const [amount, setAmount] = useState("");
@@ -65,7 +45,7 @@ export function ExpenseForm({ onAdded }: { onAdded: () => void }) {
         date,
         idempotency_key: idempotencyKey,
       });
-      setSuccess("Expense added!");
+      setSuccess("Expense added successfully!");
       setAmount("");
       setDescription("");
       setCategory(CATEGORIES[0]);
@@ -79,42 +59,43 @@ export function ExpenseForm({ onAdded }: { onAdded: () => void }) {
   };
 
   return (
-    <section
-      style={{
-        backgroundColor: "#FFFFFF",
-        border: "1px solid #E2E8F0",
-        borderRadius: 12,
-        padding: 24,
-        boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-      }}
-    >
-      <h2 style={{ margin: "0 0 20px 0", fontSize: 18, fontWeight: 700, color: "#0F172A" }}>
-        Add Expense
-      </h2>
+    <section className="glass-card rounded-2xl p-6 sm:p-8 transform transition-all duration-300 hover:shadow-xl">
+      <div className="flex items-center space-x-3 mb-6">
+        <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+          <Plus className="w-5 h-5 text-indigo-600" />
+        </div>
+        <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+          Add New Expense
+        </h2>
+      </div>
 
       <form onSubmit={submit}>
-        {/* Desktop: row — Mobile: stacked via CSS */}
-        <div className="expense-form-grid">
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={labelStyle}>Amount</label>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="0.00"
-              style={inputStyle}
-              required
-            />
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+          {/* Amount */}
+          <div className="flex flex-col space-y-1.5 md:col-span-2">
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Amount</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                required
+                className="h-11 w-full rounded-xl border border-slate-200 bg-white/50 pl-7 pr-3 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium"
+              />
+            </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={labelStyle}>Category</label>
+          {/* Category */}
+          <div className="flex flex-col space-y-1.5 md:col-span-3">
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Category</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              style={inputStyle}
+              className="h-11 w-full rounded-xl border border-slate-200 bg-white/50 px-3 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium cursor-pointer"
             >
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
@@ -124,63 +105,61 @@ export function ExpenseForm({ onAdded }: { onAdded: () => void }) {
             </select>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={labelStyle}>Description</label>
+          {/* Description */}
+          <div className="flex flex-col space-y-1.5 md:col-span-3">
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Description</label>
             <input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What was it for?"
-              style={inputStyle}
               required
+              className="h-11 w-full rounded-xl border border-slate-200 bg-white/50 px-3 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400 font-medium"
             />
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={labelStyle}>Date</label>
+          {/* Date */}
+          <div className="flex flex-col space-y-1.5 md:col-span-2">
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Date</label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               max={new Date().toISOString().split("T")[0]}
-              style={inputStyle}
               required
+              className="h-11 w-full rounded-xl border border-slate-200 bg-white/50 px-3 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium"
             />
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+          {/* Submit Button */}
+          <div className="md:col-span-2 flex flex-col justify-end h-full pt-6 md:pt-0">
             <button
               type="submit"
               disabled={loading}
-              style={{
-                height: 40,
-                borderRadius: 8,
-                border: "none",
-                backgroundColor: "#4F46E5",
-                color: "#FFFFFF",
-                fontSize: 14,
-                fontWeight: 500,
-                cursor: loading ? "not-allowed" : "pointer",
-                opacity: loading ? 0.6 : 1,
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                padding: "0 24px",
-                whiteSpace: "nowrap",
-              }}
+              className="group relative h-11 w-full flex items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 text-sm font-bold text-white shadow-md shadow-indigo-200 hover:from-indigo-500 hover:to-violet-500 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5"
             >
               {loading && <Spinner />}
-              {loading ? "Adding..." : "Add Expense"}
+              <span>{loading ? "Adding..." : "Add"}</span>
             </button>
           </div>
         </div>
       </form>
 
-      <div style={{ marginTop: 12, minHeight: 20, fontSize: 14 }}>
-        {error && <span style={{ color: "#DC2626" }}>{error}</span>}
-        {success && <span style={{ color: "#16A34A" }}>{success}</span>}
-      </div>
+      {/* Messages */}
+      {(error || success) && (
+        <div className="mt-4 animate-in fade-in slide-in-from-top-2">
+          {error && (
+            <div className="p-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-medium text-center">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 text-sm font-medium text-center">
+              {success}
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }

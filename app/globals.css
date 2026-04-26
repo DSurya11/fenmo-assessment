@@ -5,100 +5,113 @@
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --color-background: #F8FAFC;
-  --color-foreground: #0F172A;
-  --color-border: #E2E8F0;
-  --color-input: #E2E8F0;
-  --color-ring: #4F46E5;
+  --color-background: var(--color-slate-50);
+  --color-foreground: var(--color-slate-900);
+  --color-border: var(--color-slate-200);
+  --color-input: var(--color-slate-200);
+  --color-ring: var(--color-indigo-500);
 }
 
 /* ── Reset ── */
-*,
-*::before,
-*::after {
-  border-color: #E2E8F0;
+@layer base {
+
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-slate-200);
+  }
+
+  html {
+    background-color: var(--color-slate-50);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    /* Beautiful subtle animated background */
+    background: white;
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    color: var(--color-slate-900);
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--font-sans);
+  }
+
+  @keyframes gradientBG {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0% 50%;
+    }
+  }
 }
 
-html {
-  background-color: #F8FAFC;
-}
+/* ── Input overrides ── */
+@layer components {
 
-body {
-  background-color: #F8FAFC;
-  color: #0F172A;
-  margin: 0;
-}
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  select:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px white inset !important;
+    -webkit-text-fill-color: var(--color-slate-900) !important;
+  }
 
-/* ── Force white inputs (override browser autofill) ── */
-input,
-select,
-textarea {
-  background-color: #FFFFFF !important;
-  color: #0F172A;
-}
-
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-select:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
-  -webkit-text-fill-color: #0F172A !important;
-  background-color: #FFFFFF !important;
-}
-
-/* ── Input focus ── */
-input:focus,
-select:focus {
-  outline: none;
-  border-color: #4F46E5 !important;
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.12);
-}
-
-/* ── Button hover transition ── */
-button {
-  transition: background-color 0.15s ease, color 0.15s ease;
+  /* Glassmorphism card base */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.04), 0 20px 40px -14px rgba(79, 70, 229, 0.12);
+  }
 }
 
 /* ═══════════════════════════════════════
-   Responsive layout classes
+   Responsive layout classes (legacy helpers if still needed)
    ═══════════════════════════════════════ */
-
-/* Main container padding */
 .main-container {
   padding: 24px 16px;
 }
+
 @media (min-width: 768px) {
   .main-container {
     padding: 24px;
   }
 }
 
-/* Header email: hidden on mobile */
 .header-email {
   display: none;
 }
+
 @media (min-width: 768px) {
   .header-email {
     display: block;
   }
 }
 
-/* Mobile email: shown only on mobile */
 .mobile-email {
   display: block;
 }
+
 @media (min-width: 640px) {
   .mobile-email {
     display: none;
   }
 }
 
-/* Filter row: stacked on mobile, row on desktop */
 .filter-row {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
+
 @media (min-width: 768px) {
   .filter-row {
     flex-direction: row;
@@ -107,12 +120,12 @@ button {
   }
 }
 
-/* Expense form grid: stacked on mobile, single row on desktop */
 .expense-form-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
 }
+
 @media (min-width: 1024px) {
   .expense-form-grid {
     grid-template-columns: 140px 160px minmax(200px, 1fr) 160px auto;

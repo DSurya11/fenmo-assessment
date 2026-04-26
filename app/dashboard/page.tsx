@@ -12,27 +12,8 @@ import {
 } from "@/lib/api";
 import { ExpenseForm } from "@/components/ExpenseForm";
 import { ExpenseList } from "@/components/ExpenseList";
-
-const cardStyle: React.CSSProperties = {
-  backgroundColor: "#FFFFFF",
-  border: "1px solid #E2E8F0",
-  borderRadius: 12,
-  padding: 24,
-  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-};
-
-const inputStyle: React.CSSProperties = {
-  height: 40,
-  borderRadius: 8,
-  border: "1px solid #E2E8F0",
-  backgroundColor: "#FFFFFF",
-  padding: "0 12px",
-  fontSize: 14,
-  color: "#0F172A",
-  outline: "none",
-  width: "100%",
-  boxSizing: "border-box",
-};
+import ExpenseChart from "@/components/ExpenseChart";
+import { LogOut, WalletCards, ArrowDownUp, Filter } from "lucide-react";
 
 function SortButton({
   active,
@@ -43,26 +24,15 @@ function SortButton({
   onClick: () => void;
   children: React.ReactNode;
 }) {
-  const [hovered, setHovered] = useState(false);
   return (
     <button
       type="button"
       onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        height: 40,
-        borderRadius: 9999,
-        border: "1px solid #4F46E5",
-        backgroundColor: active ? "#4F46E5" : hovered ? "#EEF2FF" : "#FFFFFF",
-        color: active ? "#FFFFFF" : "#4F46E5",
-        fontSize: 14,
-        fontWeight: 500,
-        padding: "0 16px",
-        cursor: "pointer",
-        transition: "background-color 0.15s, color 0.15s",
-        whiteSpace: "nowrap",
-      }}
+      className={`h-10 rounded-full px-4 text-sm font-semibold transition-all duration-300 ${
+        active
+          ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
+          : "bg-white text-indigo-600 border border-indigo-200 hover:bg-indigo-50 hover:border-indigo-300"
+      }`}
     >
       {children}
     </button>
@@ -78,7 +48,6 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
-  const [logoutHovered, setLogoutHovered] = useState(false);
 
   useEffect(() => {
     if (!email) {
@@ -136,47 +105,22 @@ export default function DashboardPage() {
   if (!email) return null;
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#F8FAFC" }}>
+    <div className="min-h-screen pb-12">
       {/* ─── HEADER ─── */}
-      <header
-        style={{
-          height: 64,
-          borderBottom: "1px solid #E2E8F0",
-          backgroundColor: "#FFFFFF",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "0 24px",
-          }}
-        >
+      <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-sm">
+        <div className="max-w-6xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Left: brand */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span
-              style={{
-                display: "inline-block",
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                backgroundColor: "#4F46E5",
-              }}
-            />
-            <span style={{ fontSize: 18, fontWeight: 700, color: "#0F172A" }}>
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md shadow-indigo-200">
+              <WalletCards className="text-white w-4 h-4" />
+            </div>
+            <span className="text-lg font-bold text-slate-900 tracking-tight hidden sm:block">
               ExpenseTracker
             </span>
           </div>
 
           {/* Center: email (desktop) */}
-          <span
-            className="header-email"
-            style={{ fontSize: 14, color: "#64748B" }}
-          >
+          <span className="hidden md:block text-sm font-medium text-slate-500 bg-slate-100/50 px-3 py-1 rounded-full border border-slate-200/50">
             {email}
           </span>
 
@@ -184,59 +128,38 @@ export default function DashboardPage() {
           <button
             onClick={onLogout}
             disabled={loggingOut}
-            onMouseEnter={() => setLogoutHovered(true)}
-            onMouseLeave={() => setLogoutHovered(false)}
-            style={{
-              height: 40,
-              borderRadius: 8,
-              border: "1px solid #4F46E5",
-              backgroundColor: logoutHovered && !loggingOut ? "#4F46E5" : "#FFFFFF",
-              color: logoutHovered && !loggingOut ? "#FFFFFF" : "#4F46E5",
-              fontSize: 14,
-              fontWeight: 500,
-              padding: "0 16px",
-              cursor: loggingOut ? "not-allowed" : "pointer",
-              opacity: loggingOut ? 0.6 : 1,
-              transition: "background-color 0.15s, color 0.15s",
-            }}
+            className="flex items-center space-x-2 h-9 px-4 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 hover:text-red-600 hover:border-red-200 transition-all focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loggingOut ? "Logging out…" : "Logout"}
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">{loggingOut ? "Logging out…" : "Logout"}</span>
           </button>
         </div>
       </header>
 
       {/* ─── MAIN ─── */}
-      <main
-        className="main-container"
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          display: "flex",
-          flexDirection: "column",
-          gap: 24,
-        }}
-      >
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex flex-col space-y-6">
         {/* Mobile email */}
-        <p className="mobile-email" style={{ margin: 0, fontSize: 14, color: "#64748B" }}>
+        <p className="md:hidden text-sm font-medium text-slate-500 text-center mb-2">
           {email}
         </p>
 
         {/* Add Expense */}
         <ExpenseForm onAdded={load} />
 
-        {/* Filter & Sort */}
-        <section style={cardStyle}>
-          <div className="filter-row">
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 200 }}>
-              <label style={{ fontSize: 14, fontWeight: 500, color: "#334155" }}>
-                Filter by Category
+        {/* Filter & Sort & Total Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 glass-card rounded-2xl p-6 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+            <div className="flex flex-col space-y-2 flex-1 max-w-xs">
+              <label className="text-sm font-semibold text-slate-700 flex items-center space-x-1.5">
+                <Filter className="w-4 h-4 text-indigo-500" />
+                <span>Filter by Category</span>
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                style={inputStyle}
+                className="h-10 rounded-xl border border-slate-200 bg-white/50 px-3 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all cursor-pointer"
               >
-                <option value="All">All</option>
+                <option value="All">All Categories</option>
                 <option value="Food">Food</option>
                 <option value="Transport">Transport</option>
                 <option value="Shopping">Shopping</option>
@@ -247,56 +170,64 @@ export default function DashboardPage() {
               </select>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <span style={{ fontSize: 14, fontWeight: 500, color: "#334155" }}>Sort</span>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <div className="flex flex-col space-y-2">
+              <span className="text-sm font-semibold text-slate-700 flex items-center space-x-1.5">
+                <ArrowDownUp className="w-4 h-4 text-indigo-500" />
+                <span>Sort Order</span>
+              </span>
+              <div className="flex space-x-2">
                 <SortButton active={sortDesc} onClick={() => setSortDesc(true)}>
-                  Newest first
+                  Newest
                 </SortButton>
                 <SortButton active={!sortDesc} onClick={() => setSortDesc(false)}>
-                  Oldest first
+                  Oldest
                 </SortButton>
               </div>
             </div>
           </div>
-        </section>
 
-        {/* Total */}
-        <section
-          style={{
-            ...cardStyle,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "20px 24px",
-          }}
-        >
-          <span style={{ fontSize: 14, color: "#64748B" }}>Total</span>
-          <span style={{ fontSize: 30, fontWeight: 700, color: "#0F172A" }}>
-            {formatCurrency(total)}
-          </span>
-        </section>
+          {/* Total */}
+          <div className="glass-card rounded-2xl p-6 flex flex-col justify-center relative overflow-hidden group">
+            <div className="absolute -right-6 -top-6 w-24 h-24 bg-indigo-50 rounded-full blur-2xl group-hover:bg-indigo-100 transition-colors"></div>
+            <span className="text-sm font-medium text-slate-500 mb-1 relative z-10">Total Spent</span>
+            <span className="text-4xl font-extrabold text-slate-900 tracking-tight relative z-10">
+              {formatCurrency(total)}
+            </span>
+          </div>
+        </div>
 
+        {/* Category Summary */}
         {categorySummary.length > 0 && (
-          <section style={cardStyle}>
-            <h3 style={{ margin: "0 0 8px 0", fontSize: 16, fontWeight: 600, color: "#0F172A" }}>
-              Spending by Category
+          <div className="glass-card rounded-2xl p-6">
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 flex items-center space-x-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+              <span>Spending by Category</span>
             </h3>
-            <p style={{ margin: 0, fontSize: 14, color: "#334155" }}>
-              {categorySummary
-                .map(([expenseCategory, amount]) => `${expenseCategory} ${formatCurrency(amount)}`)
-                .join(" | ")}
-            </p>
-          </section>
+            <div className="flex flex-wrap gap-3">
+              {categorySummary.map(([expenseCategory, amount]) => (
+                <div key={expenseCategory} className="bg-white/60 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center space-x-2 text-sm">
+                  <span className="font-medium text-slate-600">{expenseCategory}</span>
+                  <span className="text-slate-300">|</span>
+                  <span className="font-bold text-slate-900">{formatCurrency(amount)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
+
+        <ExpenseChart expenses={expenses} />
 
         {/* Error */}
         {loadError && (
-          <p style={{ margin: 0, fontSize: 14, color: "#DC2626" }}>{loadError}</p>
+          <div className="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-medium flex items-center justify-center">
+            {loadError}
+          </div>
         )}
 
         {/* Expenses Table */}
-        <ExpenseList expenses={expenses} loading={loading} />
+        <div className="pt-2">
+          <ExpenseList expenses={expenses} loading={loading} />
+        </div>
       </main>
     </div>
   );
