@@ -111,6 +111,18 @@ export default function DashboardPage() {
     [expenses]
   );
 
+  const categorySummary = useMemo(() => {
+    const totals = expenses.reduce<Record<string, number>>((acc, expense) => {
+      const expenseCategory = expense.category || "Other";
+      acc[expenseCategory] = (acc[expenseCategory] ?? 0) + Number(expense.amount || 0);
+      return acc;
+    }, {});
+
+    return Object.entries(totals)
+      .filter(([, amount]) => amount > 0)
+      .sort(([a], [b]) => a.localeCompare(b));
+  }, [expenses]);
+
   const onLogout = async () => {
     setLoggingOut(true);
     try {
@@ -264,6 +276,19 @@ export default function DashboardPage() {
             {formatCurrency(total)}
           </span>
         </section>
+
+        {categorySummary.length > 0 && (
+          <section style={cardStyle}>
+            <h3 style={{ margin: "0 0 8px 0", fontSize: 16, fontWeight: 600, color: "#0F172A" }}>
+              Spending by Category
+            </h3>
+            <p style={{ margin: 0, fontSize: 14, color: "#334155" }}>
+              {categorySummary
+                .map(([expenseCategory, amount]) => `${expenseCategory} ${formatCurrency(amount)}`)
+                .join(" | ")}
+            </p>
+          </section>
+        )}
 
         {/* Error */}
         {loadError && (

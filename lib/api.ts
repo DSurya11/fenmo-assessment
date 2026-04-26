@@ -73,6 +73,7 @@ export async function createExpense(payload: {
   category: string;
   description: string;
   date: string;
+  idempotency_key: string;
 }) {
   const res = await fetch("/api/expenses", {
     method: "POST",
@@ -99,5 +100,8 @@ export function clearSession() {
 }
 
 export function formatCurrency(n: number) {
-  return `₹${n.toFixed(2)}`;
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+  }).format(n);
 }

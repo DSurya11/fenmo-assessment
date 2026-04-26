@@ -9,6 +9,29 @@ import {
 } from "@/lib/api";
 import { Spinner } from "@/components/Spinner";
 
+const passwordRules = [
+  {
+    label: "At least 8 characters",
+    validator: (value: string) => value.length >= 8,
+  },
+  {
+    label: "At least one uppercase letter",
+    validator: (value: string) => /[A-Z]/.test(value),
+  },
+  {
+    label: "At least one lowercase letter",
+    validator: (value: string) => /[a-z]/.test(value),
+  },
+  {
+    label: "At least one number",
+    validator: (value: string) => /[0-9]/.test(value),
+  },
+  {
+    label: "At least one special character",
+    validator: (value: string) => /[^A-Za-z0-9]/.test(value),
+  },
+];
+
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -16,6 +39,12 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const passwordChecks = passwordRules.map((rule) => ({
+    label: rule.label,
+    met: rule.validator(password),
+  }));
+  const passwordValid = passwordChecks.every((rule) => rule.met);
 
   useEffect(() => {
     if (getSessionEmail()) {
@@ -28,6 +57,10 @@ export default function LoginPage() {
     setError(null);
     if (!email.trim() || !password) {
       setError("Email and password are required");
+      return;
+    }
+    if (!passwordValid) {
+      setError("Password does not meet complexity requirements");
       return;
     }
     setLoading(true);
@@ -164,6 +197,23 @@ export default function LoginPage() {
                 boxSizing: "border-box",
               }}
             />
+            <p style={{ margin: 0, fontSize: 12, color: "#64748B" }}>
+              Min 8 chars, uppercase, lowercase, number, special character
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {passwordChecks.map((rule) => (
+                <p
+                  key={rule.label}
+                  style={{
+                    margin: 0,
+                    fontSize: 12,
+                    color: rule.met ? "#16A34A" : "#DC2626",
+                  }}
+                >
+                  {rule.met ? "✓" : "✗"} {rule.label}
+                </p>
+              ))}
+            </div>
           </div>
 
           <button

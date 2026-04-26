@@ -57,11 +57,13 @@ export function ExpenseForm({ onAdded }: { onAdded: () => void }) {
     }
     setLoading(true);
     try {
+      const idempotencyKey = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       await createExpense({
         amount: parseFloat(amt.toFixed(2)),
         category,
         description: description.trim(),
         date,
+        idempotency_key: idempotencyKey,
       });
       setSuccess("Expense added!");
       setAmount("");
@@ -140,6 +142,7 @@ export function ExpenseForm({ onAdded }: { onAdded: () => void }) {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              max={todayStr()}
               style={inputStyle}
               required
             />
