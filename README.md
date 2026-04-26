@@ -1,96 +1,94 @@
 # ExpenseTracker
 
-A full-stack expense tracking app built with **Next.js 16**, **Supabase**, and **Tailwind CSS v4**.
+A production-ready full-stack expense tracking application.
+
+**Live Demo:** https://fenmo-assessment-hazel.vercel.app
+**Repo:** https://github.com/DSurya11/fenmo-assessment
+
+---
 
 ## Tech Stack
 
-- **Frontend**: Next.js (App Router), React 19, TypeScript
-- **Backend**: Next.js API Routes (`app/api/`)
-- **Database & Auth**: Supabase (PostgreSQL + Auth)
-- **Styling**: Tailwind CSS v4 + inline styles
+- **Framework:** Next.js 14 (App Router) + TypeScript
+- **Database:** Supabase (PostgreSQL)
+- **Validation:** Zod
+- **Auth:** Supabase Auth
+- **Deployment:** Vercel
 
-## Project Structure
+---
 
-```
-app/
-  layout.tsx           # Root layout
-  page.tsx             # Redirect → /login or /dashboard
-  login/page.tsx       # Login / signup page
-  dashboard/page.tsx   # Main dashboard
-  api/
-    auth/route.ts      # Auth endpoints (login, signup, logout)
-    expenses/route.ts  # CRUD endpoints for expenses
-components/
-  ExpenseForm.tsx      # Add expense form
-  ExpenseList.tsx      # Expenses table
-  ExpenseFilters.tsx   # Category filter + sort controls
-  Spinner.tsx          # Loading spinner
-lib/
-  api.ts               # Client-side API helpers + session management
-  supabase.ts          # Supabase client initialization
-```
-
-## Features
-
-- Email/password authentication (signup & login)
-- Add expenses with amount, category, description, and date
-- Filter by category and sort by date (newest/oldest)
-- Live total calculation
-- Responsive design (mobile-first)
-
-## Setup
-
-### 1. Install dependencies
-
-```bash
-npm install
-```
-
-### 2. Configure environment
-
-Create `.env.local` in the project root:
+## Architecture
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+Browser -> Next.js Frontend (/app)
+              ↓
+         Next.js API Routes (/app/api)
+              ↓
+         Supabase PostgreSQL
 ```
 
-### 3. Supabase setup
+Frontend and backend are co-located in one Next.js app, deployed as serverless functions on Vercel. No separate backend server is needed.
 
-Create an `expenses` table in your Supabase project:
-
-```sql
-create table expenses (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users(id),
-  amount numeric not null,
-  category text not null,
-  description text not null,
-  date date not null,
-  created_at timestamptz default now()
-);
-
-alter table expenses enable row level security;
-
-create policy "Users manage own expenses"
-  on expenses for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-```
-
-### 4. Run locally
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000)
+---
 
 ## API Endpoints
 
-| Method | Route            | Description           |
-|--------|------------------|-----------------------|
-| POST   | `/api/auth`      | Login or signup        |
-| DELETE | `/api/auth`      | Logout                |
-| GET    | `/api/expenses`  | List expenses (filtered/sorted) |
-| POST   | `/api/expenses`  | Create new expense    |
+| Method | Route         | Description                                                |
+| ------ | ------------- | ---------------------------------------------------------- |
+| POST   | /api/auth     | Login or Signup (action: login or signup)                  |
+| DELETE | /api/auth     | Logout                                                     |
+| GET    | /api/expenses | List expenses. Supports ?category=Food and ?sort=date_desc |
+| POST   | /api/expenses | Create expense. Supports idempotency_key                   |
+
+---
+
+## Key Design Decisions
+
+**1. PostgreSQL via Supabase for money storage**
+Amount is stored as DECIMAL(12,2) - not float - to avoid floating point errors with real money. Supabase gives us a managed PostgreSQL instance with row-level security, so each user can only access their own data.
+
+**2. Idempotency on POST /expenses**
+The API accepts an optional idempotency_key. If the same key is submitted twice (due to network retry, double-click, or page reload), the server returns the existing record instead of creating a duplicate. This makes the API safe for unreliable networks.
+
+**3. Next.js API Routes instead of a separate Express backend**
+Avoids CORS issues, reduces deployment complexity, and keeps the entire app in one repo with one deployment. API routes run as serverless functions on Vercel.
+
+**4. Zod for validation**
+All inputs are validated server-side before touching the database. Amount must be positive, all fields are required, category must be one of the allowed enum values.
+
+**5. Row Level Security (RLS) in Supabase**
+Even if the API key is exposed, users cannot read or write other users' data. RLS policies enforce data isolation at the database level.
+
+---
+
+## Trade-offs Made Due to Timebox
+
+- No automated tests (unit or integration) - would add Jest + Supertest given more time
+- No pagination on GET /expenses - acceptable for personal use scale
+- Auth uses Supabase's built-in email auth instead of a custom JWT implementation
+- No rate limiting on API routes
+
+---
+
+## What I Intentionally Did Not Build
+
+- **User roles / permissions** - not needed for personal finance tool
+- **Export to CSV** - out of scope for this assessment
+- **Charts / analytics** - the assignment asks for a simple total, not visualizations
+- **Offline support / PWA** - would add with more time
+
+---
+
+## Local Setup
+
+1. Clone: `git clone https://github.com/DSurya11/fenmo-assessment.git`
+2. Install: `npm install`
+3. Create `.env.local`:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+```
+
+4. Run: `npm run dev`
+5. Open: http://localhost:3000
