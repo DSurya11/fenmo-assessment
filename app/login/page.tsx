@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-  authRequest,
-} from "@/lib/api";
+import { authRequest } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { Spinner } from "@/components/Spinner";
 import { CheckCircle2, XCircle, WalletCards } from "lucide-react";
