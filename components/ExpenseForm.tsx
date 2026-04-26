@@ -142,7 +142,7 @@ export function ExpenseForm({ onAdded }: { onAdded: () => void }) {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              max={todayStr()}
+              max={new Date().toISOString().split("T")[0]}
               style={inputStyle}
               required
             />
