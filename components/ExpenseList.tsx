@@ -50,6 +50,17 @@ export function ExpenseList({
   if (loading) {
     return (
       <div style={cardStyle}>
+        <p
+          style={{
+            margin: 0,
+            padding: "16px",
+            fontSize: 14,
+            color: "#64748B",
+            borderBottom: "1px solid #E2E8F0",
+          }}
+        >
+          Loading expenses...
+        </p>
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}

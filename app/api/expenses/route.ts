@@ -4,7 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const ExpenseSchema = z.object({
-  amount: z.number().positive({ message: "Amount must be greater than 0" }),
+  amount: z
+    .number()
+    .positive({ message: "Amount must be greater than 0" })
+    .max(999999999, { message: "Amount too large" }),
   category: z.enum([
     "Food",
     "Transport",
@@ -14,8 +17,11 @@ const ExpenseSchema = z.object({
     "Bills",
     "Other",
   ]),
-  description: z.string().min(1, { message: "Description is required" }),
-  date: z.string().min(1, { message: "Date is required" }),
+  description: z.string().min(1).max(500),
+  date: z
+    .string()
+    .min(1, { message: "Date is required" })
+    .refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date" }),
   idempotency_key: z.string().optional(),
 });
 

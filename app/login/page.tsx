@@ -166,10 +166,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {error && (
-            <p style={{ margin: 0, fontSize: 14, color: "#DC2626" }}>{error}</p>
-          )}
-
           <button
             type="submit"
             disabled={loading}
@@ -192,11 +188,17 @@ export default function LoginPage() {
           >
             {loading && <Spinner />}
             {loading
-              ? "Please wait..."
+              ? mode === "login"
+                ? "Signing in..."
+                : "Creating account..."
               : mode === "login"
                 ? "Log in"
                 : "Sign up"}
           </button>
+
+          {error && (
+            <p style={{ margin: 0, fontSize: 14, color: "#DC2626" }}>{error}</p>
+          )}
         </form>
 
         <button

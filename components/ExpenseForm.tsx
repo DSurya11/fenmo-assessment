@@ -63,7 +63,7 @@ export function ExpenseForm({ onAdded }: { onAdded: () => void }) {
         description: description.trim(),
         date,
       });
-      setSuccess("Expense added");
+      setSuccess("Expense added!");
       setAmount("");
       setDescription("");
       setCategory(CATEGORIES[0]);
@@ -168,7 +168,7 @@ export function ExpenseForm({ onAdded }: { onAdded: () => void }) {
               }}
             >
               {loading && <Spinner />}
-              {loading ? "Adding…" : "Add Expense"}
+              {loading ? "Adding..." : "Add Expense"}
             </button>
           </div>
         </div>

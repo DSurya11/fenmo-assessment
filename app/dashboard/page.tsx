@@ -93,8 +93,8 @@ export default function DashboardPage() {
     try {
       const data = await fetchExpenses({ category, sortDesc });
       setExpenses(data);
-    } catch (err) {
-      setLoadError(err instanceof Error ? err.message : "Failed to load");
+    } catch {
+      setLoadError("Failed to load expenses. Please refresh.");
       setExpenses([]);
     } finally {
       setLoading(false);
